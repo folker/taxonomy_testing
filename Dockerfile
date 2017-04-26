@@ -58,12 +58,6 @@ RUN apt-get update && apt-get install -y \
 	wget \
 	curl
 
-# ###########
-# copy files into image
-COPY awecmd/* bin/* /usr/local/bin/
-COPY lib/* /usr/local/lib/site_perl/
-COPY superblat /usr/local/bin/
-RUN chmod 555 /usr/local/bin/* && strip /usr/local/bin/superblat
 
 #### install BLAT from src
 RUN cd /root \
@@ -101,9 +95,9 @@ RUN cd /root \
 	
 ### install vsearch 2.40
 RUN cd /root \
-	&& wget https://github.com/torognes/vsearch/archive/v2.4.0.tar.gz \
-	&& tar xzf v2.4.0.tar.gz \
-	&& cd vsearch-2.4.0 \
+	&& wget https://github.com/torognes/vsearch/archive/v2.4.3.tar.gz \
+	&& tar xzf v2.*.tar.gz \
+	&& cd vsearch-2.* \
 	&& sh ./autogen.sh \
 	&& ./configure --prefix=/usr/local/ \
 	&& make \
@@ -135,10 +129,24 @@ RUN cd /root \
 	&& cd sortmerna-2.1b \
 	&& ./configure &&  make install && make clean
 
-### install simka
-#RUN cd /root \
-#	&& git clone https://github.com/GATB/simka.git \
-#	&& cd simka \
-#	&& sh INSTALL \
+### install prodigal
+RUN apt-get install -y prodigal infernal libncurses5-dev libncursesw5-dev
 
+### install mapseq v1.1
+RUN cd /root \
+ && wget http://meringlab.org/software/mapseq/mapseq-1.1.tar.gz \
+ && tar xzf mapseq-*.gz \
+ && cd map* \
+ && ./configure \
+ && make \
+ && make install \
+ && rm -rf /root/map*
+ 
+ 
+ # Install CWL
+ RUN apt-get install -y curl
+ RUN curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"  \
+   && python get-pip.py  \
+   && pip install cwlref-runner \
+   && rm get-pip.py
 
